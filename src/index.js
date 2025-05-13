@@ -11,7 +11,7 @@ export default async ({ req, res, log }) => {
   const databases = new Databases(client);
 
   try {
-    // ✅ Yeni yöntem: Appwrite 1.6+ için payload kullan
+    // 🔥 sadece bu satır farklı: doğru şekilde payload çözümlemesi
     const body = JSON.parse(req.payload || "{}");
 
     log("📦 Parsed body:", JSON.stringify(body));
