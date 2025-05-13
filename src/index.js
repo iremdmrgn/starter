@@ -11,12 +11,8 @@ export default async ({ req, res, log }) => {
   const databases = new Databases(client);
 
   try {
-    // ✅ GitHub function'larda payload yerine bodyRaw çözülmeli
-    let rawBody = req.bodyRaw || req.body || "{}";
-    if (typeof rawBody !== "string") {
-      rawBody = Buffer.from(rawBody).toString("utf-8");
-    }
-    const body = JSON.parse(rawBody);
+    // 🔥 GitHub Functions için doğru çözümleme
+    const body = JSON.parse(req.payload || "{}");
 
     log("📦 Parsed body:", JSON.stringify(body));
 
@@ -26,11 +22,6 @@ export default async ({ req, res, log }) => {
       log("❌ Eksik documentId");
       return res.send(JSON.stringify({ error: "Missing documentId" }), 400);
     }
-
-    log(`🆔 documentId: ${documentId}`);
-    log(`👤 username: ${username}`);
-    log(`📝 bio: ${bio}`);
-    log(`🖼️ avatarIndex: ${avatarIndex}`);
 
     const result = await databases.updateDocument(
       process.env.DATABASE_ID,
@@ -47,14 +38,9 @@ export default async ({ req, res, log }) => {
     log("✅ Güncelleme başarılı:", result.$id);
     return res.send(JSON.stringify({ success: true, updated: result }));
   } catch (err) {
-    log("❌ Function error:", err instanceof Error ? err.message : String(err));
-    return res.send(
-      JSON.stringify({
-        error: "Update failed",
-        details: err instanceof Error ? err.message : String(err),
-      }),
-      500
-    );
+    const message = err instanceof Error ? err.message : String(err);
+    log("❌ Function error:", message);
+    return res.send(JSON.stringify({ error: "Update failed", details: message }), 500);
   }
 };
 
