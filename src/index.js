@@ -1,5 +1,7 @@
 import { Client, Databases } from "node-appwrite";
 
+console.log("✅ index.js yüklendi");
+
 export default async ({ req, res, log }) => {
   log("🚀 Function başladı");
 
@@ -11,18 +13,29 @@ export default async ({ req, res, log }) => {
   const databases = new Databases(client);
 
   try {
-    const rawBody = req.body || "{}";
+    const rawBody = req.bodyRaw || req.body || "{}"; // 🔥 bodyRaw eklendi
     log("📥 rawBody:", rawBody);
 
-    const body = JSON.parse(rawBody);
-    log("📦 Parsed body:", JSON.stringify(body));
+    let body;
+    try {
+      body = typeof rawBody === "string" ? JSON.parse(rawBody) : rawBody;
+    } catch (err) {
+      log("❌ JSON parse hatası:", err.message);
+      return res.send(JSON.stringify({ error: "Invalid JSON body" }), 400);
+    }
 
+    log("📦 Parsed body:", JSON.stringify(body));
     const { documentId, username, bio, avatarIndex } = body;
 
     if (!documentId) {
       log("❌ Eksik documentId");
-      return res.send(JSON.stringify({ error: "Missing documentId" }), 400); // 👈 json yerine send
+      return res.send(JSON.stringify({ error: "Missing documentId" }), 400);
     }
+
+    log(`🆔 documentId: ${documentId}`);
+    log(`👤 username: ${username}`);
+    log(`📝 bio: ${bio}`);
+    log(`🖼️ avatarIndex: ${avatarIndex}`);
 
     const result = await databases.updateDocument(
       process.env.DATABASE_ID,
@@ -38,11 +51,14 @@ export default async ({ req, res, log }) => {
 
     log("✅ Güncelleme başarılı:", result.$id);
 
-    // ✅ res.send kullan ve response'u direkt string olarak yolla
     return res.send(JSON.stringify({ success: true, updated: result }));
   } catch (err) {
     log("❌ Function error:", err.message);
-    return res.send(JSON.stringify({ error: "Update failed", details: err.message }), 500);
+    return res.send(
+      JSON.stringify({ error: "Update failed", details: err.message }),
+      500
+    );
   }
 };
+
 
