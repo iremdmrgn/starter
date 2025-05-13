@@ -11,7 +11,6 @@ export default async ({ req, res, log }) => {
   const databases = new Databases(client);
 
   try {
-    // 🧠 Buraya dikkat: Buffer gelirse string'e çevir
     let rawBody = req.bodyRaw || req.body || "{}";
     if (typeof rawBody !== "string") {
       rawBody = Buffer.from(rawBody).toString("utf-8");
@@ -56,4 +55,5 @@ export default async ({ req, res, log }) => {
     );
   }
 };
+
 
