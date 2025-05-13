@@ -11,23 +11,15 @@ export default async ({ req, res, log }) => {
   const databases = new Databases(client);
 
   try {
+    // 🧠 Buraya dikkat: Buffer gelirse string'e çevir
     let rawBody = req.bodyRaw || req.body || "{}";
-
-    // 🧠 Eğer Buffer geldiyse string'e çevir
     if (typeof rawBody !== "string") {
       rawBody = Buffer.from(rawBody).toString("utf-8");
     }
 
-    log("📥 rawBody string:", rawBody);
+    log("📥 rawBody:", rawBody);
 
-    let body;
-    try {
-      body = JSON.parse(rawBody);
-    } catch (err) {
-      log("❌ JSON parse hatası:", err.message);
-      return res.send(JSON.stringify({ error: "Invalid JSON body" }), 400);
-    }
-
+    const body = JSON.parse(rawBody);
     log("📦 Parsed body:", JSON.stringify(body));
 
     const { documentId, username, bio, avatarIndex } = body;
@@ -64,5 +56,4 @@ export default async ({ req, res, log }) => {
     );
   }
 };
-
 
