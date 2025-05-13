@@ -1,4 +1,4 @@
-iimport { Client, Databases } from "node-appwrite";
+import { Client, Databases } from "node-appwrite";
 
 export default async ({ req, res, log }) => {
   log("🚀 Function başladı");
@@ -55,6 +55,4 @@ export default async ({ req, res, log }) => {
     );
   }
 };
-
-
 
