@@ -11,7 +11,7 @@ export default async ({ req, res, log }) => {
   const databases = new Databases(client);
 
   try {
-    // 🔥 GitHub Functions için doğru çözümleme
+    // ✅ GitHub Appwrite Function'da doğru çözümleme
     const body = JSON.parse(req.payload || "{}");
 
     log("📦 Parsed body:", JSON.stringify(body));
@@ -22,6 +22,11 @@ export default async ({ req, res, log }) => {
       log("❌ Eksik documentId");
       return res.send(JSON.stringify({ error: "Missing documentId" }), 400);
     }
+
+    log(`🆔 documentId: ${documentId}`);
+    log(`👤 username: ${username}`);
+    log(`📝 bio: ${bio}`);
+    log(`🖼️ avatarIndex: ${avatarIndex}`);
 
     const result = await databases.updateDocument(
       process.env.DATABASE_ID,
@@ -38,9 +43,14 @@ export default async ({ req, res, log }) => {
     log("✅ Güncelleme başarılı:", result.$id);
     return res.send(JSON.stringify({ success: true, updated: result }));
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    log("❌ Function error:", message);
-    return res.send(JSON.stringify({ error: "Update failed", details: message }), 500);
+    log("❌ Function error:", err instanceof Error ? err.message : String(err));
+    return res.send(
+      JSON.stringify({
+        error: "Update failed",
+        details: err instanceof Error ? err.message : String(err),
+      }),
+      500
+    );
   }
 };
 
