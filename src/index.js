@@ -11,14 +11,9 @@ export default async ({ req, res, log }) => {
   const databases = new Databases(client);
 
   try {
-    let rawBody = req.bodyRaw || req.body || "{}";
-    if (typeof rawBody !== "string") {
-      rawBody = Buffer.from(rawBody).toString("utf-8");
-    }
+    // ✅ Yeni yöntem: Appwrite 1.6+ için payload kullan
+    const body = JSON.parse(req.payload || "{}");
 
-    log("📥 rawBody:", rawBody);
-
-    const body = JSON.parse(rawBody);
     log("📦 Parsed body:", JSON.stringify(body));
 
     const { documentId, username, bio, avatarIndex } = body;
@@ -48,9 +43,12 @@ export default async ({ req, res, log }) => {
     log("✅ Güncelleme başarılı:", result.$id);
     return res.send(JSON.stringify({ success: true, updated: result }));
   } catch (err) {
-    log("❌ Function error:", err.message);
+    log("❌ Function error:", err instanceof Error ? err.message : String(err));
     return res.send(
-      JSON.stringify({ error: "Update failed", details: err.message }),
+      JSON.stringify({
+        error: "Update failed",
+        details: err instanceof Error ? err.message : String(err),
+      }),
       500
     );
   }
