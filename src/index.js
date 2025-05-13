@@ -13,7 +13,8 @@ export default async ({ req, res, log }) => {
   const databases = new Databases(client);
 
   try {
-    const rawBody = req.bodyRaw || req.body || "{}"; // 🔥 bodyRaw eklendi
+    // 🧠 Appwrite bazen body'yi bodyRaw olarak yollar
+    const rawBody = req.bodyRaw || req.body || "{}";
     log("📥 rawBody:", rawBody);
 
     let body;
@@ -25,6 +26,7 @@ export default async ({ req, res, log }) => {
     }
 
     log("📦 Parsed body:", JSON.stringify(body));
+
     const { documentId, username, bio, avatarIndex } = body;
 
     if (!documentId) {
@@ -32,21 +34,25 @@ export default async ({ req, res, log }) => {
       return res.send(JSON.stringify({ error: "Missing documentId" }), 400);
     }
 
+    log("🧾 Giden veri:");
     log(`🆔 documentId: ${documentId}`);
     log(`👤 username: ${username}`);
     log(`📝 bio: ${bio}`);
     log(`🖼️ avatarIndex: ${avatarIndex}`);
+    log(`🧷 avatarUrl: avatar-${avatarIndex}`);
+
+    const updatePayload = {
+      username: username || "",
+      bio: bio || "",
+      avatarIndex: typeof avatarIndex === "number" ? avatarIndex : 0,
+      avatarUrl: `avatar-${avatarIndex}`,
+    };
 
     const result = await databases.updateDocument(
       process.env.DATABASE_ID,
       process.env.USERS_COLLECTION_ID,
       documentId,
-      {
-        username,
-        bio,
-        avatarIndex,
-        avatarUrl: `avatar-${avatarIndex}`,
-      }
+      updatePayload
     );
 
     log("✅ Güncelleme başarılı:", result.$id);
@@ -60,5 +66,6 @@ export default async ({ req, res, log }) => {
     );
   }
 };
+
 
 
