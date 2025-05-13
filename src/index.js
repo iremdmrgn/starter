@@ -1,4 +1,4 @@
-import { Client, Databases } from "node-appwrite";
+iimport { Client, Databases } from "node-appwrite";
 
 export default async ({ req, res, log }) => {
   log("🚀 Function başladı");
@@ -12,9 +12,13 @@ export default async ({ req, res, log }) => {
 
   try {
     let rawBody = req.bodyRaw || "{}";
+
+    // string değilse buffer to string
     if (typeof rawBody !== "string") {
       rawBody = Buffer.from(rawBody).toString("utf-8");
     }
+
+    log("📥 rawBody:", rawBody);
 
     const body = JSON.parse(rawBody);
     log("📦 Parsed body:", JSON.stringify(body));
