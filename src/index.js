@@ -13,9 +13,9 @@ export default async ({ req, res, log }) => {
   try {
     let rawBody = req.bodyRaw || req.body || "{}";
 
-    // 🔥 Eğer Buffer geldiyse stringe çevir
+    // 🧠 Eğer Buffer geldiyse string'e çevir
     if (typeof rawBody !== "string") {
-      rawBody = Buffer.from(rawBody).toString("utf8");
+      rawBody = Buffer.from(rawBody).toString("utf-8");
     }
 
     log("📥 rawBody string:", rawBody);
@@ -36,6 +36,11 @@ export default async ({ req, res, log }) => {
       log("❌ Eksik documentId");
       return res.send(JSON.stringify({ error: "Missing documentId" }), 400);
     }
+
+    log(`🆔 documentId: ${documentId}`);
+    log(`👤 username: ${username}`);
+    log(`📝 bio: ${bio}`);
+    log(`🖼️ avatarIndex: ${avatarIndex}`);
 
     const result = await databases.updateDocument(
       process.env.DATABASE_ID,
@@ -59,6 +64,5 @@ export default async ({ req, res, log }) => {
     );
   }
 };
-
 
 
