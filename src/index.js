@@ -11,30 +11,17 @@ export default async ({ req, res, log }) => {
   const databases = new Databases(client);
 
   try {
-    let rawBody = req.bodyRaw;
+    const payloadRaw = req.headers["x-appwrite-data"];
 
-    if (!rawBody) {
-      log("⚠️ bodyRaw boş geldi");
+    if (!payloadRaw) {
+      log("❌ X-Appwrite-Data eksik");
       return res.send(JSON.stringify({ error: "Empty request body" }), 400);
     }
 
-    if (typeof rawBody !== "string") {
-      rawBody = Buffer.from(rawBody).toString("utf-8");
-    }
-
-    log("📥 rawBody:", rawBody);
-
-    let body;
-    try {
-      body = JSON.parse(rawBody);
-    } catch (parseErr) {
-      log("❌ JSON parse hatası:", parseErr.message);
-      return res.send(JSON.stringify({ error: "Invalid JSON format" }), 400);
-    }
+    const body = JSON.parse(payloadRaw);
+    log("📦 Parsed body:", JSON.stringify(body));
 
     const { documentId, username, bio, avatarIndex } = body;
-
-    log("🧾 Gelen değerler:", { documentId, username, bio, avatarIndex });
 
     if (!documentId) {
       log("❌ Eksik documentId");
