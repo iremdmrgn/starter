@@ -10,6 +10,7 @@ export default async ({ req, res, log }) => {
 
   try {
     const body = JSON.parse(req.body || "{}");
+    log("📦 Gelen body:", JSON.stringify(body));
 
     const { documentId, username, bio, avatarIndex } = body;
 
@@ -31,8 +32,7 @@ export default async ({ req, res, log }) => {
     );
 
     log("✅ Güncelleme başarılı:", result.$id);
-
-    return res.json({ success: true, updated: result });
+    return res.json({ success: true, updated: result }); // ✅ Bu satır çalışmalı
   } catch (err) {
     log("❌ Function error:", err.message);
     return res.json({ error: "Update failed", details: err.message }, 500);
