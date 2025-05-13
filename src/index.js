@@ -11,9 +11,12 @@ export default async ({ req, res, log }) => {
   const databases = new Databases(client);
 
   try {
-    // ✅ GitHub Appwrite Function'da doğru çözümleme
-    const body = JSON.parse(req.payload || "{}");
+    let rawBody = req.bodyRaw || "{}";
+    if (typeof rawBody !== "string") {
+      rawBody = Buffer.from(rawBody).toString("utf-8");
+    }
 
+    const body = JSON.parse(rawBody);
     log("📦 Parsed body:", JSON.stringify(body));
 
     const { documentId, username, bio, avatarIndex } = body;
@@ -22,11 +25,6 @@ export default async ({ req, res, log }) => {
       log("❌ Eksik documentId");
       return res.send(JSON.stringify({ error: "Missing documentId" }), 400);
     }
-
-    log(`🆔 documentId: ${documentId}`);
-    log(`👤 username: ${username}`);
-    log(`📝 bio: ${bio}`);
-    log(`🖼️ avatarIndex: ${avatarIndex}`);
 
     const result = await databases.updateDocument(
       process.env.DATABASE_ID,
@@ -53,5 +51,6 @@ export default async ({ req, res, log }) => {
     );
   }
 };
+
 
 
