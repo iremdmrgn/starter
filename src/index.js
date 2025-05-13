@@ -1,6 +1,6 @@
 import { Client, Databases } from "node-appwrite";
 
-console.log("✅ index.js yüklendi");
+console.log("✅ Function dosyası yüklendi");
 
 export default async ({ req, res, log }) => {
   log("🚀 Function başladı");
@@ -13,18 +13,12 @@ export default async ({ req, res, log }) => {
   const databases = new Databases(client);
 
   try {
-    const rawBody = req.bodyRaw || req.body || "{}";
-    log("📥 rawBody:", rawBody);
+    const rawBody = req.body || "{}";
+    log("📥 raw req.body:", rawBody);
 
-    let body;
-    try {
-      body = JSON.parse(rawBody);
-    } catch (err) {
-      log("❌ JSON parse hatası:", err.message);
-      return res.json({ error: "Invalid JSON body" }, 400);
-    }
-
+    const body = JSON.parse(rawBody);
     log("📦 Parsed body:", JSON.stringify(body));
+
     const { documentId, username, bio, avatarIndex } = body;
 
     if (!documentId) {
@@ -32,6 +26,7 @@ export default async ({ req, res, log }) => {
       return res.json({ error: "Missing documentId" }, 400);
     }
 
+    log("🧾 Güncellenecek veriler:");
     log(`🆔 documentId: ${documentId}`);
     log(`👤 username: ${username}`);
     log(`📝 bio: ${bio}`);
@@ -49,13 +44,22 @@ export default async ({ req, res, log }) => {
       }
     );
 
-    log("✅ Güncelleme başarılı:", result.$id);
-    return res.json({ success: true, updated: result });
-  } catch (err) {
-    log("❌ Function error:", JSON.stringify(err, null, 2));
-    return res.json({ error: "Update failed", details: err.message }, 500);
-  }
-};
+    log("✅ Güncelleme başarılı:", result?.$id || result);
 
+    const responsePayload = {
+      success: true,
+      updated: {
+        id: result?.$id,
+        username: result?.username,
+        bio: result?.bio,
+        avatarIndex: result?.avatarIndex,
+      },
+    };
+
+    log("📤 Dönülen response:", JSON.stringify(responsePayload));
+    return res.json(responsePayload);
+  } catch (err) {
+    log("❌ Hata oluştu:", err.message);
+    return res.json({ error: "Update failed", details: err.message }, 500);
   }
 };
