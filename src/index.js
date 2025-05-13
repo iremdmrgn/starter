@@ -13,13 +13,13 @@ export default async ({ req, res, log }) => {
   const databases = new Databases(client);
 
   try {
-    // 🧠 Appwrite bazen body'yi bodyRaw olarak yollar
-    const rawBody = req.bodyRaw || req.body || "{}";
+    // 🔥 Sadece req.bodyRaw kullan (Expo'dan gelen fetch için bu gerekli)
+    const rawBody = req.bodyRaw || "{}";
     log("📥 rawBody:", rawBody);
 
     let body;
     try {
-      body = typeof rawBody === "string" ? JSON.parse(rawBody) : rawBody;
+      body = JSON.parse(rawBody); // 👈 Sadece string parse
     } catch (err) {
       log("❌ JSON parse hatası:", err.message);
       return res.send(JSON.stringify({ error: "Invalid JSON body" }), 400);
@@ -34,14 +34,7 @@ export default async ({ req, res, log }) => {
       return res.send(JSON.stringify({ error: "Missing documentId" }), 400);
     }
 
-    log("🧾 Giden veri:");
-    log(`🆔 documentId: ${documentId}`);
-    log(`👤 username: ${username}`);
-    log(`📝 bio: ${bio}`);
-    log(`🖼️ avatarIndex: ${avatarIndex}`);
-    log(`🧷 avatarUrl: avatar-${avatarIndex}`);
-
-    const updatePayload = {
+    const payload = {
       username: username || "",
       bio: bio || "",
       avatarIndex: typeof avatarIndex === "number" ? avatarIndex : 0,
@@ -52,11 +45,10 @@ export default async ({ req, res, log }) => {
       process.env.DATABASE_ID,
       process.env.USERS_COLLECTION_ID,
       documentId,
-      updatePayload
+      payload
     );
 
     log("✅ Güncelleme başarılı:", result.$id);
-
     return res.send(JSON.stringify({ success: true, updated: result }));
   } catch (err) {
     log("❌ Function error:", err.message);
