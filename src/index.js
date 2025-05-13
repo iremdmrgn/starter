@@ -11,8 +11,12 @@ export default async ({ req, res, log }) => {
   const databases = new Databases(client);
 
   try {
-    // 🔥 sadece bu satır farklı: doğru şekilde payload çözümlemesi
-    const body = JSON.parse(req.payload || "{}");
+    // ✅ GitHub function'larda payload yerine bodyRaw çözülmeli
+    let rawBody = req.bodyRaw || req.body || "{}";
+    if (typeof rawBody !== "string") {
+      rawBody = Buffer.from(rawBody).toString("utf-8");
+    }
+    const body = JSON.parse(rawBody);
 
     log("📦 Parsed body:", JSON.stringify(body));
 
