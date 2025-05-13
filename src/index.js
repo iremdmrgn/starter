@@ -1,4 +1,5 @@
 import { Client, Databases } from "node-appwrite";
+console.log("✅ index.js yüklendi");
 
 export default async ({ req, res, log }) => {
   const client = new Client()
