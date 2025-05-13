@@ -1,7 +1,5 @@
 import { Client, Databases } from "node-appwrite";
 
-console.log("✅ index.js yüklendi");
-
 export default async ({ req, res, log }) => {
   log("🚀 Function başladı");
 
@@ -13,10 +11,22 @@ export default async ({ req, res, log }) => {
   const databases = new Databases(client);
 
   try {
-    // ✅ Hem body hem bodyRaw üzerinden almaya çalış (hangisi varsa)
-    const raw = req.bodyRaw || "{}";
-    const fallbackParsed = JSON.parse(raw);
-    const body = req.body && Object.keys(req.body).length > 0 ? req.body : fallbackParsed;
+    let rawBody = req.bodyRaw || req.body || "{}";
+
+    // 🔥 Eğer Buffer geldiyse stringe çevir
+    if (typeof rawBody !== "string") {
+      rawBody = Buffer.from(rawBody).toString("utf8");
+    }
+
+    log("📥 rawBody string:", rawBody);
+
+    let body;
+    try {
+      body = JSON.parse(rawBody);
+    } catch (err) {
+      log("❌ JSON parse hatası:", err.message);
+      return res.send(JSON.stringify({ error: "Invalid JSON body" }), 400);
+    }
 
     log("📦 Parsed body:", JSON.stringify(body));
 
@@ -49,7 +59,6 @@ export default async ({ req, res, log }) => {
     );
   }
 };
-
 
 
 
