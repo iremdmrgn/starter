@@ -11,14 +11,8 @@ export default async ({ req, res, log }) => {
   const databases = new Databases(client);
 
   try {
-    const raw = req.bodyRaw;
-
-    if (!raw) {
-      log("❌ Gövde boş geldi");
-      return res.send(JSON.stringify({ error: "Empty request body" }), 400);
-    }
-
-    const body = JSON.parse(raw); // ✅ işte burada çözüm
+    // 🔥 Appwrite Functions 1.6+ için en sağlam çözüm:
+    const body = await req.json(); // <-- bu otomatik olarak body'yi çözümler
 
     log("📦 Parsed body:", JSON.stringify(body));
 
