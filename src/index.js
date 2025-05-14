@@ -11,15 +11,14 @@ export default async ({ req, res, log }) => {
   const databases = new Databases(client);
 
   try {
-    const raw = req.bodyRaw;
+    const payloadRaw = req.headers["x-appwrite-data"]; // 🔥 HEADER'dan alıyoruz
 
-    if (!raw) {
-      log("❌ Gövde boş geldi");
+    if (!payloadRaw) {
+      log("❌ Header eksik: x-appwrite-data");
       return res.send(JSON.stringify({ error: "Empty request body" }), 400);
     }
 
-    const body = JSON.parse(raw); // ✅ En sağlam ve uyumlu yol
-
+    const body = JSON.parse(payloadRaw);
     log("📦 Parsed body:", JSON.stringify(body));
 
     const { documentId, username, bio, avatarIndex } = body;
@@ -54,5 +53,6 @@ export default async ({ req, res, log }) => {
     );
   }
 };
+
 
 
