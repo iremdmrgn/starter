@@ -11,8 +11,14 @@ export default async ({ req, res, log }) => {
   const databases = new Databases(client);
 
   try {
-    // 🔥 Appwrite Functions 1.6+ için en sağlam çözüm:
-    const body = await req.json(); // <-- bu otomatik olarak body'yi çözümler
+    const raw = req.bodyRaw;
+
+    if (!raw) {
+      log("❌ Gövde boş geldi");
+      return res.send(JSON.stringify({ error: "Empty request body" }), 400);
+    }
+
+    const body = JSON.parse(raw); // ✅ En sağlam ve uyumlu yol
 
     log("📦 Parsed body:", JSON.stringify(body));
 
@@ -48,4 +54,5 @@ export default async ({ req, res, log }) => {
     );
   }
 };
+
 
